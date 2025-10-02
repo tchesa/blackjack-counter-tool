@@ -79,7 +79,7 @@ export default function Home() {
     <div className="font-sans min-h-screen px-4 pt-4 pb-20 max-w-screen-md mx-auto flex flex-col">
       <header className="row-start-1 flex gap-2 flex-wrap items-center justify-start mb-6">
         <Image src="/diamonds.svg" alt="Diamonds" width={32} height={32} />
-        <h1 className="text-4xl font-bold">Blackjack Counter Tool</h1>
+        <h1 className="text-4xl font-bold">Blackjack Counter Tool2</h1>
       </header>
       <main className="justify-center flex flex-col gap-[32px] row-start-2 items-center sm:items-start grow">
         <p
