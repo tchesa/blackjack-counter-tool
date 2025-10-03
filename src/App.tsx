@@ -153,7 +153,12 @@ export default function Home() {
     <div className="font-sans min-h-screen px-4 pt-4 pb-20 max-w-screen-md mx-auto flex flex-col">
       <header className="row-start-1 flex gap-2 flex-wrap items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <img src="/diamonds.svg" alt="Diamonds" width={32} height={32} />
+          <img
+            src={`${location.href}/diamonds.svg`}
+            alt="Diamonds"
+            width={32}
+            height={32}
+          />
           <h1 className="text-4xl font-bold">Blackjack Counter Tool</h1>
         </div>
         <a
@@ -162,7 +167,7 @@ export default function Home() {
           rel="noopener noreferrer"
         >
           <img
-            src="/github-white-icon.svg"
+            src={`${location.href}/github-white-icon.svg`}
             alt="GitHub"
             width={24}
             height={24}
