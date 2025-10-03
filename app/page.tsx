@@ -32,7 +32,11 @@ export default function Home() {
   const [isNeutralPressed, setIsNeutralPressed] = useState<boolean>(false);
   const [isResetPressed, setIsResetPressed] = useState<boolean>(false);
   const [numberOfDecks, setNumberOfDecks] = useState<number>(6);
-  const [cardsPlayed, setCardsPlayed] = useState<number>(0);
+  const [smallCardsPlayed, setSmallCardsPlayed] = useState<number>(0);
+  const [largeCardsPlayed, setLargeCardsPlayed] = useState<number>(0);
+  const [neutralCardsPlayed, setNeutralCardsPlayed] = useState<number>(0);
+
+  const cardsPlayed = smallCardsPlayed + largeCardsPlayed + neutralCardsPlayed;
 
   useEffect(() => {
     const storedNumberOfDecks = window.localStorage.getItem(
@@ -60,21 +64,23 @@ export default function Home() {
 
   const handleReset = useCallback(() => {
     setCount(0);
-    setCardsPlayed(0);
+    setSmallCardsPlayed(0);
+    setLargeCardsPlayed(0);
+    setNeutralCardsPlayed(0);
   }, []);
 
   const handleAdd = useCallback(() => {
     setCount((x) => x + 1);
-    setCardsPlayed((x) => x + 1);
+    setSmallCardsPlayed((x) => x + 1);
   }, []);
 
   const handleSubtract = useCallback(() => {
     setCount((x) => x - 1);
-    setCardsPlayed((x) => x + 1);
+    setLargeCardsPlayed((x) => x + 1);
   }, []);
 
   const handleNeutral = useCallback(() => {
-    setCardsPlayed((x) => x + 1);
+    setNeutralCardsPlayed((x) => x + 1);
   }, []);
 
   useEffect(() => {
@@ -208,32 +214,48 @@ export default function Home() {
             value={decksRemaining.toFixed(2)}
           />
         </div>
-        <div className="gap-4 w-full grid grid-cols-3">
-          {COUNTERS.map((key) => {
-            const value = counters[key];
+        <div className="flex flex-col gap-2 w-full">
+          <div className="gap-4 w-full grid grid-cols-3">
+            {COUNTERS.map((key) => {
+              const value = counters[key];
 
-            return (
-              <div
-                key={key}
-                className={cx(
-                  "rounded-lg grow relative",
-                  key === "trueCount" ? "col-span-2" : "col-span-1",
-                  value > 0
-                    ? "bg-green-800"
-                    : value < 0
-                    ? "bg-red-800"
-                    : "bg-gray-800"
-                )}
-              >
-                <p className="text-sm text-gray-300 font-bold absolute top-2 left-2">
-                  {CONTER_LABELS[key]}
-                </p>
-                <p className="font-bold text-9xl px-4 py-8 w-full text-center">
-                  {key === "trueCount" ? value.toFixed(2) : value}
-                </p>
-              </div>
-            );
-          })}
+              return (
+                <div
+                  key={key}
+                  className={cx(
+                    "rounded-lg grow relative",
+                    key === "trueCount" ? "col-span-2" : "col-span-1",
+                    value > 0
+                      ? "bg-green-800"
+                      : value < 0
+                      ? "bg-red-800"
+                      : "bg-gray-800"
+                  )}
+                >
+                  <p className="text-sm text-gray-300 font-bold absolute top-2 left-2">
+                    {CONTER_LABELS[key]}
+                  </p>
+                  <p className="font-bold text-9xl px-4 py-8 w-full text-center">
+                    {key === "trueCount" ? value.toFixed(2) : value}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex flex-row w-full h-2 rounded-lg overflow-hidden">
+            <div
+              className="bg-green-800 h-full"
+              style={{ flexGrow: smallCardsPlayed }}
+            />
+            <div
+              className="bg-gray-800 h-full"
+              style={{ flexGrow: cardsPlayed === 0 ? 1 : neutralCardsPlayed }}
+            />
+            <div
+              className="bg-red-800 h-full"
+              style={{ flexGrow: largeCardsPlayed }}
+            />
+          </div>
         </div>
         <div className="flex flex-col gap-4 w-full">
           <div className="w-full grid grid-cols-3 gap-4">
