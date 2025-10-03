@@ -1,6 +1,8 @@
 "use client";
 
 import Button from "@/components/button";
+import InputField from "@/components/input-field";
+import TextField from "@/components/text-field";
 import { cx } from "@/lib/cx";
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
@@ -13,26 +15,52 @@ const formatKeyboardKey = (key: string) => {
   return key.toUpperCase();
 };
 
+const NUMBER_OF_DECKS_STORAGE_KEY = "numberOfDecks";
+
+const COUNTERS = ["count", "trueCount"] as const;
+type Counter = (typeof COUNTERS)[number];
+
+const CONTER_LABELS: Record<Counter, string> = {
+  count: "Count",
+  trueCount: "True Count",
+};
+
 export default function Home() {
   const [count, setCount] = useState<number>(0);
   const [isSubtractPressed, setIsSubtractPressed] = useState<boolean>(false);
   const [isAddPressed, setIsAddPressed] = useState<boolean>(false);
+  const [isNeutralPressed, setIsNeutralPressed] = useState<boolean>(false);
   const [isResetPressed, setIsResetPressed] = useState<boolean>(false);
+  const [numberOfDecks, setNumberOfDecks] = useState<number>(
+    parseInt(window.localStorage.getItem(NUMBER_OF_DECKS_STORAGE_KEY) || "6")
+  );
+  const [cardsPlayed, setCardsPlayed] = useState<number>(0);
 
-  const subtractKey = "a";
-  const addKey = "d";
+  const subtractKey = "d";
+  const addKey = "a";
+  const neutralKey = "s";
   const resetKey = " ";
+
+  const decksRemaining = numberOfDecks - cardsPlayed / 52;
+  const trueCount = count / decksRemaining;
 
   const handleReset = useCallback(() => {
     setCount(0);
+    setCardsPlayed(0);
   }, []);
 
   const handleAdd = useCallback(() => {
     setCount((x) => x + 1);
+    setCardsPlayed((x) => x + 1);
   }, []);
 
   const handleSubtract = useCallback(() => {
     setCount((x) => x - 1);
+    setCardsPlayed((x) => x + 1);
+  }, []);
+
+  const handleNeutral = useCallback(() => {
+    setCardsPlayed((x) => x + 1);
   }, []);
 
   useEffect(() => {
@@ -47,6 +75,10 @@ export default function Home() {
 
       if (e.key === resetKey) {
         setIsResetPressed(true);
+      }
+
+      if (e.key === neutralKey) {
+        setIsNeutralPressed(true);
       }
     };
 
@@ -65,6 +97,11 @@ export default function Home() {
         setIsResetPressed(false);
         handleReset();
       }
+
+      if (e.key === neutralKey) {
+        setIsNeutralPressed(false);
+        handleNeutral();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -73,50 +110,149 @@ export default function Home() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [handleAdd, handleSubtract, handleReset]);
+  }, [handleAdd, handleSubtract, handleReset, handleNeutral]);
+
+  const counters: Record<Counter, number> = {
+    count,
+    trueCount,
+  };
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      NUMBER_OF_DECKS_STORAGE_KEY,
+      numberOfDecks.toString()
+    );
+  }, [numberOfDecks]);
+
+  const KeyboardKeyElement = ({ text }: { text: string }) => {
+    return (
+      <span className="font-mono text-xs border border-gray-400 text-gray-400 rounded-sm px-1.5">
+        {formatKeyboardKey(text)}
+      </span>
+    );
+  };
 
   return (
     <div className="font-sans min-h-screen px-4 pt-4 pb-20 max-w-screen-md mx-auto flex flex-col">
-      <header className="row-start-1 flex gap-2 flex-wrap items-center justify-start mb-6">
-        <Image src="/diamonds.svg" alt="Diamonds" width={32} height={32} />
-        <h1 className="text-4xl font-bold">Blackjack Counter Tool2</h1>
+      <header className="row-start-1 flex gap-2 flex-wrap items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <Image src="/diamonds.svg" alt="Diamonds" width={32} height={32} />
+          <h1 className="text-4xl font-bold">Blackjack Counter Tool</h1>
+        </div>
+        <a
+          href="https://github.com/tchesa/blackjack-counter-tool"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Image
+            src="/github-white-icon.svg"
+            alt="GitHub"
+            width={24}
+            height={24}
+          />
+        </a>
       </header>
       <main className="justify-center flex flex-col gap-[32px] row-start-2 items-center sm:items-start grow">
-        <p
-          className={cx(
-            "font-bold text-9xl rounded-lg px-4 py-8 w-full text-center",
-            count > 0
-              ? "bg-green-800"
-              : count < 0
-              ? "bg-red-800"
-              : "bg-gray-800"
-          )}
-        >
-          {count}
-        </p>
-        <div className="flex gap-4 w-full">
-          <Button
-            isActive={isSubtractPressed}
-            label="-1"
-            keyboardKey={formatKeyboardKey(subtractKey)}
-            onClick={handleSubtract}
-            className="grow"
+        <div className="flex flex-col gap-4 w-full">
+          <ul className="flex flex-col gap-2 text-sm text-gray-300 list-disc">
+            {[
+              <>Set the number of decks in the shoe;</>,
+              <>
+                Use the keyboard shortcuts to <strong>add</strong>{" "}
+                <KeyboardKeyElement text={addKey} /> and{" "}
+                <strong>subtract</strong>{" "}
+                <KeyboardKeyElement text={subtractKey} /> from the true count;
+              </>,
+              <>
+                The <strong>neutral</strong> cards are important to keep track
+                of the <strong>true count</strong>. Add them with the keyboard
+                shortcut <KeyboardKeyElement text={neutralKey} />;
+              </>,
+              <>
+                Reset the counter using the keyboard shortcut{" "}
+                <KeyboardKeyElement text={resetKey} /> when the shoe is
+                replaced.
+              </>,
+            ].map((item, index) => (
+              <li key={index}>{item}</li>
+            ))}
+          </ul>
+        </div>
+        <div className="gap-4 w-full grid grid-cols-3">
+          <InputField
+            type="number"
+            value={numberOfDecks.toString()}
+            onChange={(value) => setNumberOfDecks(parseInt(value))}
+            label="Number of Decks"
           />
-          <Button
-            isActive={isAddPressed}
-            label="+1"
-            keyboardKey={formatKeyboardKey(addKey)}
-            onClick={handleAdd}
-            className="grow"
+          <TextField
+            label="Cards Played"
+            value={`${cardsPlayed} / ${numberOfDecks * 52}`}
+          />
+          <TextField
+            label="Decks Remaining"
+            value={decksRemaining.toFixed(2)}
           />
         </div>
-        <Button
-          label="Reset"
-          isActive={isResetPressed}
-          keyboardKey={formatKeyboardKey(resetKey)}
-          onClick={handleReset}
-          className="w-full"
-        />
+        <div className="gap-4 w-full grid grid-cols-3">
+          {COUNTERS.map((key) => {
+            const value = counters[key];
+
+            return (
+              <div
+                key={key}
+                className={cx(
+                  "rounded-lg grow relative",
+                  key === "trueCount" ? "col-span-2" : "col-span-1",
+                  value > 0
+                    ? "bg-green-800"
+                    : value < 0
+                    ? "bg-red-800"
+                    : "bg-gray-800"
+                )}
+              >
+                <p className="text-sm text-gray-300 font-bold absolute top-2 left-2">
+                  {CONTER_LABELS[key]}
+                </p>
+                <p className="font-bold text-9xl px-4 py-8 w-full text-center">
+                  {key === "trueCount" ? value.toFixed(2) : value}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+        <div className="flex flex-col gap-4 w-full">
+          <div className="w-full grid grid-cols-3 gap-4">
+            <Button
+              isActive={isAddPressed}
+              label="+1"
+              keyboardKey={formatKeyboardKey(addKey)}
+              onClick={handleAdd}
+              className="grow"
+            />
+            <Button
+              isActive={isNeutralPressed}
+              label="0"
+              keyboardKey={formatKeyboardKey(neutralKey)}
+              onClick={handleNeutral}
+              className="grow"
+            />
+            <Button
+              isActive={isSubtractPressed}
+              label="-1"
+              keyboardKey={formatKeyboardKey(subtractKey)}
+              onClick={handleSubtract}
+              className="grow"
+            />
+          </div>
+          <Button
+            label="Reset"
+            isActive={isResetPressed}
+            keyboardKey={formatKeyboardKey(resetKey)}
+            onClick={handleReset}
+            className="w-full"
+          />
+        </div>
       </main>
       {/* <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
         
