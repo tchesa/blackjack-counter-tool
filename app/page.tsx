@@ -184,7 +184,7 @@ export default function Home() {
               </>,
               <>
                 Reset the counter using the keyboard shortcut{" "}
-                <KeyboardKeyElement text={resetKey} /> when the shoe is
+                <KeyboardKeyElement text={resetKey} /> when the shoe gets
                 replaced.
               </>,
             ].map((item, index) => (
