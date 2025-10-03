@@ -4,7 +4,6 @@ import Button from "@/components/button";
 import InputField from "@/components/input-field";
 import TextField from "@/components/text-field";
 import { cx } from "@/lib/cx";
-import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 
 const formatKeyboardKey = (key: string) => {
@@ -156,7 +155,7 @@ export default function Home() {
     <div className="font-sans min-h-screen px-4 pt-4 pb-20 max-w-screen-md mx-auto flex flex-col">
       <header className="row-start-1 flex gap-2 flex-wrap items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <Image src="/diamonds.svg" alt="Diamonds" width={32} height={32} />
+          <img src="/diamonds.svg" alt="Diamonds" width={32} height={32} />
           <h1 className="text-4xl font-bold">Blackjack Counter Tool</h1>
         </div>
         <a
@@ -164,7 +163,7 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <Image
+          <img
             src="/github-white-icon.svg"
             alt="GitHub"
             width={24}

@@ -1004,20 +1004,12 @@
     gap: calc(var(--spacing) * 0);
   }
 
-  .gap-0\.5 {
-    gap: calc(var(--spacing) * .5);
-  }
-
   .gap-2 {
     gap: calc(var(--spacing) * 2);
   }
 
   .gap-4 {
     gap: calc(var(--spacing) * 4);
-  }
-
-  .gap-\[1px\] {
-    gap: 1px;
   }
 
   .gap-\[24px\] {
