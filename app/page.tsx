@@ -21,8 +21,8 @@ const COUNTERS = ["count", "trueCount"] as const;
 type Counter = (typeof COUNTERS)[number];
 
 const CONTER_LABELS: Record<Counter, string> = {
-  count: "Count",
-  trueCount: "True Count",
+  count: "Running count",
+  trueCount: "True count",
 };
 
 export default function Home() {
@@ -31,10 +31,24 @@ export default function Home() {
   const [isAddPressed, setIsAddPressed] = useState<boolean>(false);
   const [isNeutralPressed, setIsNeutralPressed] = useState<boolean>(false);
   const [isResetPressed, setIsResetPressed] = useState<boolean>(false);
-  const [numberOfDecks, setNumberOfDecks] = useState<number>(
-    parseInt(window.localStorage.getItem(NUMBER_OF_DECKS_STORAGE_KEY) || "6")
-  );
+  const [numberOfDecks, setNumberOfDecks] = useState<number>(6);
   const [cardsPlayed, setCardsPlayed] = useState<number>(0);
+
+  useEffect(() => {
+    const storedNumberOfDecks = window.localStorage.getItem(
+      NUMBER_OF_DECKS_STORAGE_KEY
+    );
+
+    if (storedNumberOfDecks) {
+      const parsedNumberOfDecks = parseInt(storedNumberOfDecks);
+
+      if (isNaN(parsedNumberOfDecks)) {
+        return;
+      }
+
+      setNumberOfDecks(parsedNumberOfDecks);
+    }
+  }, []);
 
   const subtractKey = "d";
   const addKey = "a";
