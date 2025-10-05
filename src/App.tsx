@@ -22,16 +22,20 @@ const CONTER_LABELS: Record<Counter, string> = {
   trueCount: "True count",
 };
 
+type LastAction = "add" | "subtract" | "neutral" | null;
+
 export default function Home() {
   const [count, setCount] = useState<number>(0);
   const [isSubtractPressed, setIsSubtractPressed] = useState<boolean>(false);
   const [isAddPressed, setIsAddPressed] = useState<boolean>(false);
   const [isNeutralPressed, setIsNeutralPressed] = useState<boolean>(false);
   const [isResetPressed, setIsResetPressed] = useState<boolean>(false);
+  const [isUndoPressed, setIsUndoPressed] = useState<boolean>(false);
   const [numberOfDecks, setNumberOfDecks] = useState<number>(6);
   const [smallCardsPlayed, setSmallCardsPlayed] = useState<number>(0);
   const [largeCardsPlayed, setLargeCardsPlayed] = useState<number>(0);
   const [neutralCardsPlayed, setNeutralCardsPlayed] = useState<number>(0);
+  const [lastAction, setLastAction] = useState<LastAction>(null);
 
   const cardsPlayed = smallCardsPlayed + largeCardsPlayed + neutralCardsPlayed;
 
@@ -55,6 +59,7 @@ export default function Home() {
   const addKey = "a";
   const neutralKey = "s";
   const resetKey = " ";
+  const undoKey = "u";
 
   const decksRemaining = numberOfDecks - cardsPlayed / 52;
   const trueCount = count / decksRemaining;
@@ -64,21 +69,38 @@ export default function Home() {
     setSmallCardsPlayed(0);
     setLargeCardsPlayed(0);
     setNeutralCardsPlayed(0);
+    setLastAction(null);
   }, []);
 
   const handleAdd = useCallback(() => {
     setCount((x) => x + 1);
     setSmallCardsPlayed((x) => x + 1);
+    setLastAction("add");
   }, []);
 
   const handleSubtract = useCallback(() => {
     setCount((x) => x - 1);
     setLargeCardsPlayed((x) => x + 1);
+    setLastAction("subtract");
   }, []);
 
   const handleNeutral = useCallback(() => {
     setNeutralCardsPlayed((x) => x + 1);
+    setLastAction("neutral");
   }, []);
+
+  const handleUndo = useCallback(() => {
+    if (lastAction === "add") {
+      setCount((x) => x - 1);
+      setSmallCardsPlayed((x) => Math.max(0, x - 1));
+    } else if (lastAction === "subtract") {
+      setCount((x) => x + 1);
+      setLargeCardsPlayed((x) => Math.max(0, x - 1));
+    } else if (lastAction === "neutral") {
+      setNeutralCardsPlayed((x) => Math.max(0, x - 1));
+    }
+    setLastAction(null);
+  }, [lastAction]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -96,6 +118,10 @@ export default function Home() {
 
       if (e.key === neutralKey) {
         setIsNeutralPressed(true);
+      }
+
+      if (e.key === undoKey) {
+        setIsUndoPressed(true);
       }
     };
 
@@ -119,6 +145,11 @@ export default function Home() {
         setIsNeutralPressed(false);
         handleNeutral();
       }
+
+      if (e.key === undoKey) {
+        setIsUndoPressed(false);
+        handleUndo();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -127,7 +158,7 @@ export default function Home() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [handleAdd, handleSubtract, handleReset, handleNeutral]);
+  }, [handleAdd, handleSubtract, handleReset, handleNeutral, handleUndo]);
 
   const counters: Record<Counter, number> = {
     count,
@@ -189,6 +220,10 @@ export default function Home() {
                 The <strong>neutral</strong> cards are important to keep track
                 of the <strong>true count</strong>. Add them with the keyboard
                 shortcut <KeyboardKeyElement text={neutralKey} />;
+              </>,
+              <>
+                <strong>Undo</strong> the last counting action using{" "}
+                <KeyboardKeyElement text={undoKey} />;
               </>,
               <>
                 Reset the counter using the keyboard shortcut{" "}
@@ -283,13 +318,23 @@ export default function Home() {
               className="grow"
             />
           </div>
-          <Button
-            label="Reset"
-            isActive={isResetPressed}
-            keyboardKey={formatKeyboardKey(resetKey)}
-            onClick={handleReset}
-            className="w-full"
-          />
+          <div className="w-full grid grid-cols-2 gap-4">
+            <Button
+              label="Reset"
+              isActive={isResetPressed}
+              keyboardKey={formatKeyboardKey(resetKey)}
+              onClick={handleReset}
+              className="grow"
+            />
+            <Button
+              label="Undo"
+              isActive={isUndoPressed}
+              keyboardKey={formatKeyboardKey(undoKey)}
+              onClick={handleUndo}
+              disabled={lastAction === null}
+              className="grow"
+            />
+          </div>
         </div>
       </main>
       {/* <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
