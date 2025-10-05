@@ -29,6 +29,10 @@ jobs:
 
       - uses: borales/actions-yarn@v3.0.0
         with:
+          cmd: lint
+
+      - uses: borales/actions-yarn@v3.0.0
+        with:
           cmd: build -- --base /${{ github.event.repository.name }}/
 
       - name: Deploy to GitHub Pages
