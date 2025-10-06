@@ -55,11 +55,11 @@ export default function Home() {
     }
   }, []);
 
-  const subtractKey = "d";
-  const addKey = "a";
-  const neutralKey = "s";
+  const addKey = "q";
+  const neutralKey = "w";
+  const subtractKey = "e";
+  const undoKey = "r";
   const resetKey = " ";
-  const undoKey = "u";
 
   const decksRemaining = numberOfDecks - cardsPlayed / 52;
   const trueCount = count / decksRemaining;
