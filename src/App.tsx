@@ -22,7 +22,7 @@ const CONTER_LABELS: Record<Counter, string> = {
   trueCount: "True count",
 };
 
-type LastAction = "add" | "subtract" | "neutral" | null;
+type LastAction = "add" | "subtract" | "neutral";
 
 export default function Home() {
   const [count, setCount] = useState<number>(0);
@@ -35,7 +35,7 @@ export default function Home() {
   const [smallCardsPlayed, setSmallCardsPlayed] = useState<number>(0);
   const [largeCardsPlayed, setLargeCardsPlayed] = useState<number>(0);
   const [neutralCardsPlayed, setNeutralCardsPlayed] = useState<number>(0);
-  const [lastAction, setLastAction] = useState<LastAction>(null);
+  const [lastAction, setLastAction] = useState<LastAction | null>(null);
 
   const cardsPlayed = smallCardsPlayed + largeCardsPlayed + neutralCardsPlayed;
 
@@ -91,7 +91,7 @@ export default function Home() {
 
   const handleUndo = useCallback(() => {
     if (lastAction === "add") {
-      setCount((x) => x - 1);
+      setCount((x) => Math.max(0, x - 1));
       setSmallCardsPlayed((x) => Math.max(0, x - 1));
     } else if (lastAction === "subtract") {
       setCount((x) => x + 1);
