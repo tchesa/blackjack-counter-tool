@@ -34,6 +34,9 @@ jobs:
       - uses: borales/actions-yarn@v3.0.0
         with:
           cmd: build -- --base /${{ github.event.repository.name }}/
+        env:
+          VITE_PUBLIC_POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+          VITE_PUBLIC_POSTHOG_HOST: ${{ secrets.POSTHOG_HOST }}
 
       - name: Deploy to GitHub Pages
         # You may pin to the exact commit or the version.
