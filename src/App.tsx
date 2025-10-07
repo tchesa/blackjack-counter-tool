@@ -1,3 +1,4 @@
+import { usePostHog } from "posthog-js/react";
 import Button from "./components/button";
 import InputField from "./components/input-field";
 import TextField from "./components/text-field";
@@ -36,6 +37,11 @@ export default function Home() {
   const [largeCardsPlayed, setLargeCardsPlayed] = useState<number>(0);
   const [neutralCardsPlayed, setNeutralCardsPlayed] = useState<number>(0);
   const [lastAction, setLastAction] = useState<LastAction | null>(null);
+  const posthog = usePostHog();
+
+  useEffect(() => {
+    posthog.capture("page_view");
+  }, []);
 
   const cardsPlayed = smallCardsPlayed + largeCardsPlayed + neutralCardsPlayed;
 
@@ -70,23 +76,27 @@ export default function Home() {
     setLargeCardsPlayed(0);
     setNeutralCardsPlayed(0);
     setLastAction(null);
+    posthog.capture("reset");
   }, []);
 
   const handleAdd = useCallback(() => {
     setCount((x) => x + 1);
     setSmallCardsPlayed((x) => x + 1);
     setLastAction("add");
+    posthog.capture("upcount");
   }, []);
 
   const handleSubtract = useCallback(() => {
     setCount((x) => x - 1);
     setLargeCardsPlayed((x) => x + 1);
     setLastAction("subtract");
+    posthog.capture("downcount");
   }, []);
 
   const handleNeutral = useCallback(() => {
     setNeutralCardsPlayed((x) => x + 1);
     setLastAction("neutral");
+    posthog.capture("neutralcount");
   }, []);
 
   const handleUndo = useCallback(() => {
@@ -100,6 +110,7 @@ export default function Home() {
       setNeutralCardsPlayed((x) => Math.max(0, x - 1));
     }
     setLastAction(null);
+    posthog.capture("undo");
   }, [lastAction]);
 
   useEffect(() => {
@@ -180,6 +191,12 @@ export default function Home() {
     );
   };
 
+  useEffect(() => {
+    posthog.capture("set_number_of_decks", {
+      numberOfDecks,
+    });
+  }, [numberOfDecks]);
+
   return (
     <div className="font-sans min-h-screen px-4 pt-4 pb-20 max-w-screen-md mx-auto flex flex-col">
       <header className="row-start-1 flex gap-2 flex-wrap items-center justify-between mb-6">
@@ -196,6 +213,7 @@ export default function Home() {
           href="https://github.com/tchesa/blackjack-counter-tool"
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => posthog.capture("github_link_clicked")}
         >
           <img
             src={`${location.href}/github-white-icon.svg`}
