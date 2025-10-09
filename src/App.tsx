@@ -25,6 +25,12 @@ const CONTER_LABELS: Record<Counter, string> = {
 
 type LastAction = "add" | "subtract" | "neutral";
 
+const DECK_SIZE = 52;
+const SMALL_CARDS_PER_DECK = 20;
+const LARGE_CARDS_PER_DECK = 20;
+const NEUTRAL_CARDS_PER_DECK =
+  DECK_SIZE - SMALL_CARDS_PER_DECK - LARGE_CARDS_PER_DECK;
+
 export default function Home() {
   const [count, setCount] = useState<number>(0);
   const [isSubtractPressed, setIsSubtractPressed] = useState<boolean>(false);
@@ -197,6 +203,27 @@ export default function Home() {
     });
   }, [numberOfDecks]);
 
+  const totalCards = numberOfDecks * DECK_SIZE;
+  const cardsRemaining = totalCards - cardsPlayed;
+
+  const totalSmallCards = numberOfDecks * SMALL_CARDS_PER_DECK;
+  const totalLargeCards = numberOfDecks * LARGE_CARDS_PER_DECK;
+  const totalNeutralCards = numberOfDecks * NEUTRAL_CARDS_PER_DECK;
+
+  const smallCardsRemaining = Math.max(0, totalSmallCards - smallCardsPlayed);
+  const largeCardsRemaining = Math.max(0, totalLargeCards - largeCardsPlayed);
+  const neutralCardsRemaining = Math.max(
+    0,
+    totalNeutralCards - neutralCardsPlayed
+  );
+
+  const nextCardIsSmallProbability =
+    cardsRemaining > 0 ? smallCardsRemaining / cardsRemaining : 0;
+  const nextCardIsLargeProbability =
+    cardsRemaining > 0 ? largeCardsRemaining / cardsRemaining : 0;
+  const nextCardIsNeutralProbability =
+    cardsRemaining > 0 ? neutralCardsRemaining / cardsRemaining : 0;
+
   return (
     <div className="font-sans min-h-screen px-4 pt-4 pb-20 max-w-screen-md mx-auto flex flex-col">
       <header className="row-start-1 flex gap-2 flex-wrap items-center justify-between mb-6">
@@ -267,6 +294,20 @@ export default function Home() {
           <TextField
             label="Decks Remaining"
             value={decksRemaining.toFixed(2)}
+          />
+        </div>
+        <div className="gap-4 w-full grid grid-cols-3">
+          <TextField
+            label="Next card is small"
+            value={(nextCardIsSmallProbability * 100).toFixed(1) + "%"}
+          />
+          <TextField
+            label="Next card is neutral"
+            value={(nextCardIsNeutralProbability * 100).toFixed(1) + "%"}
+          />
+          <TextField
+            label="Next card is large"
+            value={(nextCardIsLargeProbability * 100).toFixed(1) + "%"}
           />
         </div>
         <div className="flex flex-col gap-2 w-full">
