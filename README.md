@@ -11,7 +11,7 @@ A modern, keyboard-driven web application for practicing card counting using the
 ## 🎯 Features
 
 - **Running Count & True Count Tracking**: Automatically calculates both running count and true count based on cards played
-- **Keyboard Shortcuts**: Lightning-fast counting with intuitive keyboard controls (Q, W, E, R, Space)
+- **Keyboard Shortcuts**: Lightning-fast counting with intuitive keyboard controls (A, S, D, Z, Space)
 - **Visual Feedback**: Color-coded displays showing positive (green) and negative (red) counts
 - **Card Distribution Visualization**: Real-time progress bar showing the ratio of small, neutral, and large cards played
 - **Deck Configuration**: Support for any number of decks (commonly 6 or 8 in casinos)
@@ -33,10 +33,10 @@ The Hi-Lo card counting system assigns values to cards:
 
 | Key     | Action   | Description                                     |
 | ------- | -------- | ----------------------------------------------- |
-| `Q`     | +1 Count | Press when you see small cards (2-6)            |
-| `W`     | Neutral  | Press when you see neutral cards (7-9)          |
-| `E`     | -1 Count | Press when you see large cards (10, J, Q, K, A) |
-| `R`     | Undo     | Undo the last counting action                   |
+| `A`     | +1 Count | Press when you see small cards (2-6)            |
+| `S`     | Neutral  | Press when you see neutral cards (7-9)          |
+| `D`     | -1 Count | Press when you see large cards (10, J, Q, K, A) |
+| `Z`     | Undo     | Undo the last counting action                   |
 | `Space` | Reset    | Reset all counters (use when shoe is replaced)  |
 
 ### Getting Started
