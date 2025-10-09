@@ -26,10 +26,10 @@ const CONTER_LABELS: Record<Counter, string> = {
 type LastAction = "add" | "subtract" | "neutral";
 
 const DECK_SIZE = 52;
-const SMALL_CARDS_PER_DECK = 20;
-const LARGE_CARDS_PER_DECK = 20;
+const LOW_CARDS_PER_DECK = 20;
+const HIGH_CARDS_PER_DECK = 20;
 const NEUTRAL_CARDS_PER_DECK =
-  DECK_SIZE - SMALL_CARDS_PER_DECK - LARGE_CARDS_PER_DECK;
+  DECK_SIZE - LOW_CARDS_PER_DECK - HIGH_CARDS_PER_DECK;
 
 export default function Home() {
   const [count, setCount] = useState<number>(0);
@@ -39,8 +39,8 @@ export default function Home() {
   const [isResetPressed, setIsResetPressed] = useState<boolean>(false);
   const [isUndoPressed, setIsUndoPressed] = useState<boolean>(false);
   const [numberOfDecks, setNumberOfDecks] = useState<number>(6);
-  const [smallCardsPlayed, setSmallCardsPlayed] = useState<number>(0);
-  const [largeCardsPlayed, setLargeCardsPlayed] = useState<number>(0);
+  const [lowCardsPlayed, setLowCardsPlayed] = useState<number>(0);
+  const [highCardsPlayed, setHighCardsPlayed] = useState<number>(0);
   const [neutralCardsPlayed, setNeutralCardsPlayed] = useState<number>(0);
   const [lastAction, setLastAction] = useState<LastAction | null>(null);
   const posthog = usePostHog();
@@ -49,7 +49,7 @@ export default function Home() {
     posthog.capture("page_view");
   }, []);
 
-  const cardsPlayed = smallCardsPlayed + largeCardsPlayed + neutralCardsPlayed;
+  const cardsPlayed = lowCardsPlayed + highCardsPlayed + neutralCardsPlayed;
 
   useEffect(() => {
     const storedNumberOfDecks = window.localStorage.getItem(
@@ -78,8 +78,8 @@ export default function Home() {
 
   const handleReset = useCallback(() => {
     setCount(0);
-    setSmallCardsPlayed(0);
-    setLargeCardsPlayed(0);
+    setLowCardsPlayed(0);
+    setHighCardsPlayed(0);
     setNeutralCardsPlayed(0);
     setLastAction(null);
     posthog.capture("reset");
@@ -87,14 +87,14 @@ export default function Home() {
 
   const handleAdd = useCallback(() => {
     setCount((x) => x + 1);
-    setSmallCardsPlayed((x) => x + 1);
+    setLowCardsPlayed((x) => x + 1);
     setLastAction("add");
     posthog.capture("upcount");
   }, []);
 
   const handleSubtract = useCallback(() => {
     setCount((x) => x - 1);
-    setLargeCardsPlayed((x) => x + 1);
+    setHighCardsPlayed((x) => x + 1);
     setLastAction("subtract");
     posthog.capture("downcount");
   }, []);
@@ -108,10 +108,10 @@ export default function Home() {
   const handleUndo = useCallback(() => {
     if (lastAction === "add") {
       setCount((x) => Math.max(0, x - 1));
-      setSmallCardsPlayed((x) => Math.max(0, x - 1));
+      setLowCardsPlayed((x) => Math.max(0, x - 1));
     } else if (lastAction === "subtract") {
       setCount((x) => x + 1);
-      setLargeCardsPlayed((x) => Math.max(0, x - 1));
+      setHighCardsPlayed((x) => Math.max(0, x - 1));
     } else if (lastAction === "neutral") {
       setNeutralCardsPlayed((x) => Math.max(0, x - 1));
     }
@@ -206,21 +206,21 @@ export default function Home() {
   const totalCards = numberOfDecks * DECK_SIZE;
   const cardsRemaining = totalCards - cardsPlayed;
 
-  const totalSmallCards = numberOfDecks * SMALL_CARDS_PER_DECK;
-  const totalLargeCards = numberOfDecks * LARGE_CARDS_PER_DECK;
+  const totalLowCards = numberOfDecks * LOW_CARDS_PER_DECK;
+  const totalHighCards = numberOfDecks * HIGH_CARDS_PER_DECK;
   const totalNeutralCards = numberOfDecks * NEUTRAL_CARDS_PER_DECK;
 
-  const smallCardsRemaining = Math.max(0, totalSmallCards - smallCardsPlayed);
-  const largeCardsRemaining = Math.max(0, totalLargeCards - largeCardsPlayed);
+  const lowCardsRemaining = Math.max(0, totalLowCards - lowCardsPlayed);
+  const highCardsRemaining = Math.max(0, totalHighCards - highCardsPlayed);
   const neutralCardsRemaining = Math.max(
     0,
     totalNeutralCards - neutralCardsPlayed
   );
 
-  const nextCardIsSmallProbability =
-    cardsRemaining > 0 ? smallCardsRemaining / cardsRemaining : 0;
-  const nextCardIsLargeProbability =
-    cardsRemaining > 0 ? largeCardsRemaining / cardsRemaining : 0;
+  const nextCardIsLowProbability =
+    cardsRemaining > 0 ? lowCardsRemaining / cardsRemaining : 0;
+  const nextCardIsHighProbability =
+    cardsRemaining > 0 ? highCardsRemaining / cardsRemaining : 0;
   const nextCardIsNeutralProbability =
     cardsRemaining > 0 ? neutralCardsRemaining / cardsRemaining : 0;
 
@@ -280,12 +280,13 @@ export default function Home() {
             ))}
           </ul>
         </div>
-        <div className="gap-4 w-full grid grid-cols-3">
+        <div className="gap-4 w-full grid grid-cols-2 md:grid-cols-3">
           <InputField
             type="number"
             value={numberOfDecks.toString()}
             onChange={(value) => setNumberOfDecks(parseInt(value))}
             label="Number of Decks"
+            className="col-span-2 md:col-span-1"
           />
           <TextField
             label="Cards Played"
@@ -298,38 +299,38 @@ export default function Home() {
         </div>
         <div className="gap-4 w-full grid grid-cols-3">
           <TextField
-            label="Next card is small"
-            value={(nextCardIsSmallProbability * 100).toFixed(1) + "%"}
+            label="Low %"
+            value={(nextCardIsLowProbability * 100).toFixed(1) + "%"}
             valueIntent={
-              nextCardIsSmallProbability > nextCardIsNeutralProbability &&
-              nextCardIsSmallProbability > nextCardIsLargeProbability
+              nextCardIsLowProbability > nextCardIsNeutralProbability &&
+              nextCardIsLowProbability > nextCardIsHighProbability
                 ? "positive"
                 : "default"
             }
           />
           <TextField
-            label="Next card is neutral"
+            label="Neutral %"
             value={(nextCardIsNeutralProbability * 100).toFixed(1) + "%"}
             valueIntent={
-              nextCardIsNeutralProbability > nextCardIsSmallProbability &&
-              nextCardIsNeutralProbability > nextCardIsLargeProbability
+              nextCardIsNeutralProbability > nextCardIsLowProbability &&
+              nextCardIsNeutralProbability > nextCardIsHighProbability
                 ? "positive"
                 : "default"
             }
           />
           <TextField
-            label="Next card is large"
-            value={(nextCardIsLargeProbability * 100).toFixed(1) + "%"}
+            label="High %"
+            value={(nextCardIsHighProbability * 100).toFixed(1) + "%"}
             valueIntent={
-              nextCardIsLargeProbability > nextCardIsSmallProbability &&
-              nextCardIsLargeProbability > nextCardIsNeutralProbability
+              nextCardIsHighProbability > nextCardIsLowProbability &&
+              nextCardIsHighProbability > nextCardIsNeutralProbability
                 ? "positive"
                 : "default"
             }
           />
         </div>
         <div className="flex flex-col gap-2 w-full">
-          <div className="gap-4 w-full grid grid-cols-3">
+          <div className="gap-4 w-full grid grid-cols-2 md:grid-cols-3">
             {COUNTERS.map((key) => {
               const value = counters[key];
 
@@ -338,7 +339,7 @@ export default function Home() {
                   key={key}
                   className={cx(
                     "rounded-lg grow relative",
-                    key === "trueCount" ? "col-span-2" : "col-span-1",
+                    key === "trueCount" ? "md:col-span-2" : "md:col-span-1",
                     value > 0
                       ? "bg-green-800"
                       : value < 0
@@ -349,7 +350,7 @@ export default function Home() {
                   <p className="text-sm text-gray-300 font-bold absolute top-2 left-2">
                     {CONTER_LABELS[key]}
                   </p>
-                  <p className="font-bold text-9xl px-4 py-8 w-full text-center">
+                  <p className="font-bold text-4xl md:text-9xl px-4 py-8 w-full text-center relative top-3 md:top-2">
                     {key === "trueCount" ? value.toFixed(2) : value}
                   </p>
                 </div>
@@ -359,7 +360,7 @@ export default function Home() {
           <div className="flex flex-row w-full h-2 rounded-lg overflow-hidden">
             <div
               className="bg-green-800 h-full"
-              style={{ flexGrow: smallCardsPlayed }}
+              style={{ flexGrow: lowCardsPlayed }}
             />
             <div
               className="bg-gray-800 h-full"
@@ -367,11 +368,11 @@ export default function Home() {
             />
             <div
               className="bg-red-800 h-full"
-              style={{ flexGrow: largeCardsPlayed }}
+              style={{ flexGrow: highCardsPlayed }}
             />
           </div>
         </div>
-        <div className="flex flex-col gap-4 w-full">
+        <div className="flex flex-col gap-16 md:gap-4 w-full">
           <div className="w-full grid grid-cols-3 gap-4">
             <Button
               isActive={isAddPressed}
