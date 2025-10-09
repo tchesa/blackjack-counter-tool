@@ -67,10 +67,10 @@ export default function Home() {
     }
   }, []);
 
-  const addKey = "q";
-  const neutralKey = "w";
-  const subtractKey = "e";
-  const undoKey = "r";
+  const addKey = "a";
+  const neutralKey = "s";
+  const subtractKey = "d";
+  const undoKey = "z";
   const resetKey = " ";
 
   const decksRemaining = numberOfDecks - cardsPlayed / 52;
