@@ -2,7 +2,7 @@
 
 A modern, keyboard-driven web application for practicing card counting using the Hi-Lo system. Perfect for blackjack enthusiasts looking to sharpen their counting skills or track counts during practice sessions.
 
-<img src="/doc/screenshot.png" alt="Blackjack counter tool" />
+<img src="/doc/screenshot2.png" alt="Blackjack counter tool" />
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![React](https://img.shields.io/badge/React-19.1.1-61dafb.svg)
