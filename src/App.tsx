@@ -300,14 +300,32 @@ export default function Home() {
           <TextField
             label="Next card is small"
             value={(nextCardIsSmallProbability * 100).toFixed(1) + "%"}
+            valueIntent={
+              nextCardIsSmallProbability > nextCardIsNeutralProbability &&
+              nextCardIsSmallProbability > nextCardIsLargeProbability
+                ? "positive"
+                : "default"
+            }
           />
           <TextField
             label="Next card is neutral"
             value={(nextCardIsNeutralProbability * 100).toFixed(1) + "%"}
+            valueIntent={
+              nextCardIsNeutralProbability > nextCardIsSmallProbability &&
+              nextCardIsNeutralProbability > nextCardIsLargeProbability
+                ? "positive"
+                : "default"
+            }
           />
           <TextField
             label="Next card is large"
             value={(nextCardIsLargeProbability * 100).toFixed(1) + "%"}
+            valueIntent={
+              nextCardIsLargeProbability > nextCardIsSmallProbability &&
+              nextCardIsLargeProbability > nextCardIsNeutralProbability
+                ? "positive"
+                : "default"
+            }
           />
         </div>
         <div className="flex flex-col gap-2 w-full">
