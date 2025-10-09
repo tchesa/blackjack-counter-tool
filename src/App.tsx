@@ -252,7 +252,7 @@ export default function Home() {
       </header>
       <main className="justify-center flex flex-col gap-[32px] row-start-2 items-center sm:items-start grow">
         <div className="flex flex-col gap-4 w-full">
-          <ul className="flex flex-col gap-2 text-sm text-gray-300 list-disc">
+          <ul className="flex flex-col gap-2 text-sm text-gray-300 list-disc pl-6">
             {[
               <>Set the number of decks in the shoe;</>,
               <>
