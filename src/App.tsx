@@ -4,6 +4,7 @@ import InputField from "./components/input-field";
 import TextField from "./components/text-field";
 import { cx } from "./lib/cx";
 import { useCallback, useEffect, useState } from "react";
+import ThemeSwitcher from "./components/theme-switcher";
 
 const formatKeyboardKey = (key: string) => {
   if (key === " ") {
@@ -44,6 +45,28 @@ export default function Home() {
   const [neutralCardsPlayed, setNeutralCardsPlayed] = useState<number>(0);
   const [lastAction, setLastAction] = useState<LastAction | null>(null);
   const posthog = usePostHog();
+  const [currentTheme, setCurrentTheme] = useState<"light" | "dark">(() => {
+    return document.documentElement.classList.contains("light")
+      ? "light"
+      : "dark";
+  });
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const theme = document.documentElement.classList.contains("light")
+        ? "light"
+        : "dark";
+      setCurrentTheme(theme);
+      console.log("Theme changed to:", theme); // DEBUG
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     posthog.capture("page_view");
@@ -191,7 +214,7 @@ export default function Home() {
 
   const KeyboardKeyElement = ({ text }: { text: string }) => {
     return (
-      <span className="font-mono text-xs border border-gray-400 text-gray-400 rounded-sm px-1.5">
+      <span className="font-mono text-xs border border-[var(--color-border-muted)] text-[var(--color-text-tertiary)] rounded-sm px-1.5">
         {formatKeyboardKey(text)}
       </span>
     );
@@ -236,23 +259,28 @@ export default function Home() {
           />
           <h1 className="text-4xl font-bold">Blackjack Counter Tool</h1>
         </div>
-        <a
-          href="https://github.com/tchesa/blackjack-counter-tool"
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => posthog.capture("github_link_clicked")}
-        >
-          <img
-            src={`${location.href}/github-white-icon.svg`}
-            alt="GitHub"
-            width={24}
-            height={24}
-          />
-        </a>
+        <div className="flex items-center gap-2">
+          <ThemeSwitcher />
+          <a
+            href="https://github.com/tchesa/blackjack-counter-tool"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => posthog.capture("github_link_clicked")}
+          >
+            <img
+              src={`${location.href}/github-icon${
+                currentTheme === "light" ? "" : "-white"
+              }.svg`}
+              alt="GitHub"
+              width={24}
+              height={24}
+            />
+          </a>
+        </div>
       </header>
       <main className="justify-center flex flex-col gap-[32px] row-start-2 items-center sm:items-start grow">
         <div className="flex flex-col gap-4 w-full">
-          <ul className="flex flex-col gap-2 text-sm text-gray-300 list-disc pl-6">
+          <ul className="flex flex-col gap-2 text-sm text-[var(--color-text-secondary)] list-disc pl-6">
             {[
               <>Set the number of decks in the shoe;</>,
               <>
@@ -341,13 +369,13 @@ export default function Home() {
                     "rounded-lg grow relative",
                     key === "trueCount" ? "md:col-span-2" : "md:col-span-1",
                     value > 0
-                      ? "bg-green-800"
+                      ? "bg-[var(--color-positive)]"
                       : value < 0
-                      ? "bg-red-800"
-                      : "bg-gray-800"
+                      ? "bg-[var(--color-negative)]"
+                      : "bg-[var(--color-neutral)]"
                   )}
                 >
-                  <p className="text-sm text-gray-300 font-bold absolute top-2 left-2">
+                  <p className="text-sm text-[var(--color-text-secondary)] font-bold absolute top-2 left-2">
                     {CONTER_LABELS[key]}
                   </p>
                   <p className="font-bold text-4xl md:text-9xl px-4 py-8 w-full text-center relative top-3 md:top-2">
@@ -359,15 +387,15 @@ export default function Home() {
           </div>
           <div className="flex flex-row w-full h-2 rounded-lg overflow-hidden">
             <div
-              className="bg-green-800 h-full"
+              className="bg-[var(--color-positive)] h-full"
               style={{ flexGrow: lowCardsPlayed }}
             />
             <div
-              className="bg-gray-800 h-full"
+              className="bg-[var(--color-neutral)] h-full"
               style={{ flexGrow: cardsPlayed === 0 ? 1 : neutralCardsPlayed }}
             />
             <div
-              className="bg-red-800 h-full"
+              className="bg-[var(--color-negative)] h-full"
               style={{ flexGrow: highCardsPlayed }}
             />
           </div>
